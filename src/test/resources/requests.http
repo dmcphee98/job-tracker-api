@@ -12,7 +12,25 @@ Content-Type: application/json
   "status": "APPLIED"
 }
 
+### Fully update a new job application
+PUT http://localhost:8080/api/job-applications/6
+Content-Type: application/json
+
+{
+  "company": "Leidos",
+  "role": "Engineer",
+  "status": "REJECTED"
+}
+
+### Partially update a new job application
+PATCH http://localhost:8080/api/job-applications/6
+Content-Type: application/json
+
+{
+  "company": "OpenAI"
+}
+
 ### Delete an existing job application
-DELETE http://localhost:8080/api/job-applications/1
+DELETE http://localhost:8080/api/job-applications/5
 Accept: application/json
 
