@@ -1,3 +1,16 @@
+### Get all job applications
+GET http://localhost:8080/api/job-applications
+Accept: application/json
+
+### Get all job applications with one particular status
+GET http://localhost:8080/api/job-applications?status=APPLIED
+Accept: application/json
+
+### Get all job applications with one of multiple statuses
+GET http://localhost:8080/api/job-applications?status=APPLIED,REJECTED
+Accept: application/json
+
+
 ### Get job application by ID
 GET http://localhost:8080/api/job-applications/1
 Accept: application/json

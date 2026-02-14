@@ -2,12 +2,15 @@ package com.deanmcphee.jobtracker.controller;
 
 import com.deanmcphee.jobtracker.dto.JobApplicationCreateDto;
 import com.deanmcphee.jobtracker.dto.JobApplicationDto;
+import com.deanmcphee.jobtracker.dto.JobApplicationFilterDto;
 import com.deanmcphee.jobtracker.dto.JobApplicationPatchDto;
 import com.deanmcphee.jobtracker.service.JobApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST controller for managing job applications.
@@ -21,12 +24,21 @@ public class JobApplicationController {
     private final JobApplicationService service;
 
     /**
-     * Get job applications by id
+     * Get job applications
+     */
+    @GetMapping
+    public ResponseEntity<List<JobApplicationDto>> getJobApplications(JobApplicationFilterDto filter) {
+        List<JobApplicationDto> found = service.getAll(filter);
+        return ResponseEntity.ok(found);
+    }
+
+    /**
+     * Get job application by id
      */
     @GetMapping("/{id}")
     public ResponseEntity<JobApplicationDto> getJobApplicationById(@PathVariable Long id) {
-        JobApplicationDto jobApplication = service.getById(id);
-        return ResponseEntity.ok(jobApplication);
+        JobApplicationDto found = service.getById(id);
+        return ResponseEntity.ok(found);
     }
 
     /**
@@ -42,9 +54,9 @@ public class JobApplicationController {
      * Fully updates an existing job application
      */
     @PutMapping("/{id}")
-    public ResponseEntity<JobApplicationDto> patchJobApplication(@PathVariable Long id, @RequestBody JobApplicationCreateDto request) {
-        JobApplicationDto patched = service.update(id, request);
-        return ResponseEntity.status(HttpStatus.OK).body(patched);
+    public ResponseEntity<JobApplicationDto> putJobApplication(@PathVariable Long id, @RequestBody JobApplicationCreateDto request) {
+        JobApplicationDto updated = service.update(id, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     /**

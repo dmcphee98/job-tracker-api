@@ -2,12 +2,19 @@ package com.deanmcphee.jobtracker.service;
 
 import com.deanmcphee.jobtracker.dto.JobApplicationCreateDto;
 import com.deanmcphee.jobtracker.dto.JobApplicationDto;
+import com.deanmcphee.jobtracker.dto.JobApplicationFilterDto;
 import com.deanmcphee.jobtracker.dto.JobApplicationPatchDto;
 import com.deanmcphee.jobtracker.model.JobApplication;
 import com.deanmcphee.jobtracker.repository.JobApplicationRepository;
+import com.deanmcphee.jobtracker.repository.JobApplicationSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static org.springframework.data.jpa.domain.Specification.where;
 
 /**
  * Service for managing {@link JobApplication} entities.
@@ -19,9 +26,25 @@ public class JobApplicationService {
     private final JobApplicationRepository repository;
 
     /**
+     * Retrieves all {@link JobApplication} entities which match the provided filter criteria.
+     *
+     * @param filter the filter criteria, encapsulated in a {@link JobApplicationFilterDto}
+     * @return a list of {@link JobApplicationDto} representing the matching {@link JobApplication} entities
+     */
+    public List<JobApplicationDto> getAll(JobApplicationFilterDto filter) {
+        Specification<JobApplication> spec = where(JobApplicationSpecifications.hasStatus(filter.status()));
+
+        return repository.findAll(spec)
+                .stream()
+                .map(JobApplicationDto::fromEntity)
+                .toList();
+    }
+
+    /**
      * Retrieves a {@link JobApplication} by its ID.
+     *
      * @param id the ID of the {@link JobApplication} to retrieve
-     * @return the {@link JobApplicationDto} entity
+     * @return a {@link JobApplicationDto} representing the retrieved {@link JobApplication}
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
     public JobApplicationDto getById(Long id) {
@@ -33,12 +56,8 @@ public class JobApplicationService {
 
     /**
      * Creates a new {@link JobApplication} from the provided creation request.
-     * <p>
-     * This method maps the incoming {@link JobApplicationCreateDto} to a
-     * {@link JobApplication} entity, persists it using the repository,
-     * and returns a {@link JobApplicationDto} representing the saved entity.
      *
-     * @param request the data required to create a new {@link JobApplication}
+     * @param request the data required to create a new {@link JobApplication}, encapsulated in a {@link JobApplicationCreateDto}
      * @return a {@link JobApplicationDto} representing the newly created {@link JobApplication}
      */
     public JobApplicationDto create(JobApplicationCreateDto request) {
@@ -57,7 +76,7 @@ public class JobApplicationService {
      * All fields in the DTO are required. Missing fields will not be filled automatically.
      *
      * @param id the ID of the {@link JobApplication} to update
-     * @param request the data required to update the {@link JobApplication}
+     * @param request the data required to update the {@link JobApplication}, encapsulated in a {@link JobApplicationCreateDto}
      * @return a {@link JobApplicationDto} representing the updated {@link JobApplication}
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
