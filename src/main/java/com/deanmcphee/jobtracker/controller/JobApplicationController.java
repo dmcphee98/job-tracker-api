@@ -1,8 +1,10 @@
 package com.deanmcphee.jobtracker.controller;
 
 import com.deanmcphee.jobtracker.model.JobApplication;
+import com.deanmcphee.jobtracker.dto.JobApplicationDto;
 import com.deanmcphee.jobtracker.service.JobApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,21 +23,22 @@ public class JobApplicationController {
      * Get job applications by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<JobApplication> getJobApplicationById(@PathVariable Long id) {
-        // Wrap the Optional result from the service into a ResponseEntity.
-        // Otherwise, if the JobApplication doesn’t exist, we have to return null,
-        // and Spring will convert this to HTTP 200 with empty body, which is not RESTful.
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<JobApplicationDto> getJobApplicationById(@PathVariable Long id) {
+        JobApplication jobApplication = service.getById(id);
+        JobApplicationDto responseDto = JobApplicationDto.fromEntity(jobApplication);
+        return ResponseEntity.ok(responseDto);
     }
 
     /**
      * Create a new job application
      */
     @PostMapping
-    public JobApplication createJobApplication(@RequestBody JobApplication job) {
-        return service.save(job);
+    public ResponseEntity<JobApplicationDto> createJobApplication(@RequestBody JobApplication job) {
+        JobApplication jobApplication = service.save(job);
+        JobApplicationDto responseDto = JobApplicationDto.fromEntity(jobApplication);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseDto);
     }
 
     /**
