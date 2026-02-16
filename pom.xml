@@ -30,39 +30,79 @@
 		<java.version>25</java.version>
 	</properties>
 	<dependencies>
+
+		<!--
+		  Spring Web starter:
+		  - Provides Spring MVC for REST controllers
+		  - Includes embedded Tomcat server
+		  - Adds JSON support (Jackson) and validation
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!--
+		  Spring Security starter:
+		  - Provides core Spring Security framework
+		  - Enables filter chain for authentication & authorization
+		  - Required for JWT or OAuth2 integration
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!--
+		  OAuth2 Resource Server starter:
+		  - Enables Spring Boot to validate JWT tokens issued by Cognito
+		  - Handles signature, issuer, expiration checks automatically
+		  - Needed for stateless REST API security
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+
+		<!--
+		  Spring Data JPA starter:
+		  - Provides JPA and Hibernate support
+		  - Enables repository abstraction for database access
+		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
-		</dependency>
 
+		<!--
+		  PostgreSQL JDBC driver:
+		  - For connecting to Postgres database
+		-->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+
+		<!--
+		  Lombok:
+		  - Tool for generating boilerplate code (getters/setters, constructors, etc.)
+		-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
 	<build>
 		<plugins>
+			<!--
+			  Spring Boot Maven Plugin:
+			  - Allows running the app via `mvn spring-boot:run`
+			  - Enables packaging the app as an executable JAR
+			-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
