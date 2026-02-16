@@ -17,12 +17,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JobApplication {
 
-    // Designate as primary key. Auto-generate its value.
+    // Designate id as primary key. Auto-generate its value.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, updatable = false)
+    private String userId; // Cognito sub
+
+    @Column(nullable = false)
     private String company;
+
+    @Column(nullable = false)
     private String role;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING) // Store as String, not integer
     private ApplicationStatus status;
 }

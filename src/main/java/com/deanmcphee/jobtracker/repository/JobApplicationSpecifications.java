@@ -17,6 +17,11 @@ import java.util.Collection;
  */
 public class JobApplicationSpecifications {
 
+    public static Specification<JobApplication> belongsToUser(String userId) {
+        return (root, _, cb) ->
+                cb.equal(root.get("userId"), userId);
+    }
+
     /**
      * Returns a {@link Specification} that filters {@link JobApplication} entities by
      * their {@link ApplicationStatus}.

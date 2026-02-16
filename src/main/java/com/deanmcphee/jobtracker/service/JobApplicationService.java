@@ -31,8 +31,9 @@ public class JobApplicationService {
      * @param filter the filter criteria, encapsulated in a {@link JobApplicationFilterDto}
      * @return a list of {@link JobApplicationDto} representing the matching {@link JobApplication} entities
      */
-    public List<JobApplicationDto> getAll(JobApplicationFilterDto filter) {
-        Specification<JobApplication> spec = where(JobApplicationSpecifications.hasStatus(filter.status()));
+    public List<JobApplicationDto> getAll(JobApplicationFilterDto filter, String userId) {
+        Specification<JobApplication> spec = where(JobApplicationSpecifications.belongsToUser(userId))
+                .and(JobApplicationSpecifications.hasStatus(filter.status()));
 
         return repository.findAll(spec)
                 .stream()
@@ -47,8 +48,8 @@ public class JobApplicationService {
      * @return a {@link JobApplicationDto} representing the retrieved {@link JobApplication}
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
-    public JobApplicationDto getById(Long id) {
-        JobApplication found = repository.findById(id)
+    public JobApplicationDto getById(Long id, String userId) {
+        JobApplication found = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Job application not found with ID " + id));
         return JobApplicationDto.fromEntity(found);
@@ -60,8 +61,9 @@ public class JobApplicationService {
      * @param request the data required to create a new {@link JobApplication}, encapsulated in a {@link JobApplicationCreateDto}
      * @return a {@link JobApplicationDto} representing the newly created {@link JobApplication}
      */
-    public JobApplicationDto create(JobApplicationCreateDto request) {
+    public JobApplicationDto create(JobApplicationCreateDto request, String userId) {
         JobApplication entity = new JobApplication();
+        entity.setUserId(userId);
         entity.setCompany(request.company());
         entity.setRole(request.role());
         entity.setStatus(request.status());
@@ -80,8 +82,8 @@ public class JobApplicationService {
      * @return a {@link JobApplicationDto} representing the updated {@link JobApplication}
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
-    public JobApplicationDto update(Long id, JobApplicationCreateDto request) {
-        JobApplication entity = repository.findById(id)
+    public JobApplicationDto update(Long id, JobApplicationCreateDto request, String userId) {
+        JobApplication entity = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Job application not found with ID " + id));
 
@@ -103,8 +105,8 @@ public class JobApplicationService {
      * @return a {@link JobApplicationDto} representing the updated {@link JobApplication}
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
-    public JobApplicationDto patch(Long id, JobApplicationPatchDto request) {
-        JobApplication entity = repository.findById(id)
+    public JobApplicationDto patch(Long id, JobApplicationPatchDto request, String userId) {
+        JobApplication entity = repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Job application not found with ID " + id));
 
@@ -122,11 +124,11 @@ public class JobApplicationService {
      * @param id the ID of the {@link JobApplication} to delete
      * @throws EntityNotFoundException if no {@link JobApplication} with the given ID exists
      */
-    public void deleteById(Long id) {
-        if (!repository.existsById(id)) {
+    public void deleteById(Long id, String userId) {
+        if (!repository.existsByIdAndUserId(id, userId)) {
             throw new EntityNotFoundException("Job application not found with ID " + id);
         }
-        repository.deleteById(id);
+        repository.deleteByIdAndUserId(id, userId);
     }
 
 }
