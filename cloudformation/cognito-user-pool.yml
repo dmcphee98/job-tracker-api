@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Cognito User Pool and App Client for Job Tracker Application
+
+Parameters:
+
+  Environment:
+    Type: String
+    Description: "Deployment environment"
+    AllowedValues:
+      - dev
+      - test
+      - staging
+      - prod
+    Default: dev
+
+Resources:
+
+  JobTrackerUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "job-tracker-userpool-${Environment}"
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false  # self-registration enabled
+
+  PostmanAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: job-tracker-postman-client
+      UserPoolId: !Ref JobTrackerUserPool
+      GenerateSecret: false  # SPA/public client
+      ExplicitAuthFlows:
+        - ALLOW_USER_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - openid
+        - email
+        - profile
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - https://oauth.pstmn.io/v1/browser-callback
+      LogoutURLs:
+        - https://oauth.pstmn.io/v1/browser-callback
+      PreventUserExistenceErrors: ENABLED
+
+  JobTrackerUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub
+        - "${Prefix}-${Environment}-${RandomSuffix}"
+        - Prefix: job-tracker
+          RandomSuffix: !Select [2, !Split ['/', !Ref AWS::StackId]]
+      UserPoolId: !Ref JobTrackerUserPool
+
+Outputs:
+
+  AppClientId:
+    Description: "PostMan Test App Client ID"
+    Value: !Ref PostmanAppClient
+
+  AuthURL:
+    Description: "Cognito OAuth2 Authorization URL"
+    Value: !Sub
+      - "https://${Prefix}-${Environment}-${RandomSuffix}.auth.${AWS::Region}.amazoncognito.com/oauth2/authorize"
+      - Prefix: job-tracker
+        RandomSuffix: !Select [ 2, !Split [ '/', !Ref AWS::StackId ] ]
+
+  TokenURL:
+    Description: "Cognito OAuth2 Token URL"
+    Value: !Sub
+      - "https://${Prefix}-${Environment}-${RandomSuffix}.auth.${AWS::Region}.amazoncognito.com/oauth2/token"
+      - Prefix: job-tracker
+        RandomSuffix: !Select [ 2, !Split [ '/', !Ref AWS::StackId ] ]
